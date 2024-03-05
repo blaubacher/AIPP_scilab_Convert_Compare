@@ -20,6 +20,7 @@ if extrarows ~= [] then
             extra_titles(1,j) = strcat([extra_titles(1,j),string(ChamberNo)])
         end
         data = cat(2,data,extra_data)
+        disp(titles); disp(extra_titles);
         titles = cat(2,titles,extra_titles)
         units = cat(2, units,extra_units)
     end

@@ -42,12 +42,12 @@ xls_NewExcel(); xls_Open(MapTableDoc); xls_SetWorksheet("MappingTable")
 MapTable.All  = xls_GetData("A1:E50"); xls_SetWorksheet("GasSpeciesTable")
 MapTable.GasSpecies = xls_GetData("A2:E50"); xls_Close(); xls_Quit();
 
-ChamberConfig = ReadAIPP30InputDeck(AIPP30Input);
+ChamberConfig = ReadAIPP30InputDeck(AIPP30Input)
 fnaipp3=AIPP30Doc;
-aipp3=readaipp3(fnaipp3);
-aipp3=PreprocessAIPP3(aipp3,ChamberConfig);
+aipp3=readaipp3(fnaipp3)
+aipp3=PreprocessAIPP3(aipp3,ChamberConfig)
 
-[data, header] = fscanfMat(AIPP235Doc);
+[data, header] = fscanfMat(AIPP235Doc)
 
 SIMDATA = ParseMapTable(data,header,MapTable.All,aipp3,MapTable.GasSpecies,ChamberConfig)
 SIMDATA = ConvertPyroPilesToChambers(SIMDATA,ChamberConfig)

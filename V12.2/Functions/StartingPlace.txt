@@ -1,1 +1,1 @@
-D:\AIPP3ScilabConvertCompare\AIPP3Compare\Comparator\TestCases\EricTestCases\adp1.3b
+C:\fortran\projects\archaeologic\aipp\aipp\brian\heattransfertests\adp13b

@@ -14,8 +14,6 @@ function struc_corrected = CorrectUnits(struc_inp)
                     ,allfields(i),".",temp(j),".",temp2(2),".Unit"]))
                     if aipp235unit ~= aipp30unit
                         execstr(strcat(["mismatch_units_list(i,1)=allfields(i)"]))
-                        disp(aipp235unit);
-                        disp(allfields(i));
                         execstr(strcat(["mismatch_units_list(i,2)= aipp235unit"]))
                         execstr(strcat(["mismatch_units_list(i,3)= aipp30unit"]))
                         factor = correct_units(aipp235unit,aipp30unit)
@@ -36,6 +34,11 @@ function struc_corrected = CorrectUnits(struc_inp)
 
                 execstr(strcat(["aipp30unit =dat.",allfields(i),"."temp(2),".Unit"]))
                 if aipp235unit ~= aipp30unit
+                    try
+                    disp('aipp235unit',aipp235unit)
+                    disp('aipp30 unit',aipp30unit)
+                catch
+                    disp('no unit)
                         execstr(strcat(["mismatch_units_list(i,1)=allfields(i)"]))
                         this=strcat(["mismatch_units_list(i,2)= aipp235unit"])
                         disp('this is the string that is running');
