@@ -1,0 +1,110 @@
+function [figure_size, figure_position] = Set_Figure_Window(figurescale,aspect_ratio)
+    screen = get(0, "screensize_px")
+    temp = strsplit(aspect_ratio,":");w = strtod(temp(1)); h = strtod(temp($));
+    dim.width = screen(3)*figurescale
+    dim.height = dim.width/(w/h)
+    dim.start.x = (screen(3) - dim.width)/2
+    dim.start.y = (screen(4) - dim.height)/2
+    figure_size = [dim.width, dim.height]
+    figure_position = [dim.start.x, dim.start.y]
+endfunction
+
+function colorlist = SetColors()
+
+colorlist.alvbrand =   [  0, 159, 227;  22,  59, 119; 198,  58, 164;...
+                        255,   0,   0; 252, 220,   4;  20, 160,  30;...
+                        147, 213, 246;  59, 139, 197; 228, 185, 216;...
+                        241, 145, 156; 255, 255, 128; 133, 190,  87;...
+                          0,   0, 255;   0, 255, 255;   0,   0,   0;...
+                        255,   0, 255; 255,   0,   0;]
+                    
+colorlist.colorblind = [  0,   0,   0;   0,  73,  73;   0, 146, 146;...
+                        255, 109, 182; 255, 182, 219;  73,   0, 146;...
+                          0, 109, 219;  73,   0, 146;   0, 109, 219;...
+                        182, 109, 255; 109, 182, 255; 182, 219, 255;...
+                        146,   0,   0; 146,  73,   0; 219, 109,   0;...
+                         36, 255,  36; 255, 255, 109;]
+                         
+colorlist.impart =     [  0,   0, 255; 255,   0,   0;   0,   0,   0;...
+                          0, 128,   0; 255,   0, 255;   0, 255, 255;...
+                        128,   0, 128; 128,   0,   0;   0, 128, 128;...
+                          0,   0, 128; 128, 128,   0; 128, 128, 128;...
+                          0, 255,   0; 138,  43, 226;   0, 206, 209;...
+                        165,  42,  42; 123, 104, 238;  95, 158, 160;...
+                        127, 255,   0; 210, 105,  30;]
+                        
+                        
+gray = [190,190,190]; gray = gray/255; 
+colorlist.off = sdf().color_map;
+colorlist.off = cat(1,gray, colorlist.off)
+colorlist.alvbrand = colorlist.alvbrand/255;
+colorlist.colorblind = colorlist.colorblind/255;
+colorlist.impart = colorlist.impart/255;
+colorlist.alvbrand = cat(1,gray,colorlist.alvbrand, colorlist.alvbrand,colorlist.alvbrand)
+colorlist.colorblind = cat(1,gray,colorlist.colorblind, colorlist.colorblind,colorlist.colorblind)
+colorlist.impart = cat(1,gray,colorlist.impart, colorlist.impart,colorlist.impart)
+
+endfunction
+
+function converted = LaTeXify(inp_string)
+    //Add mathbf and $'s
+    for i=1:1:max(size(inp_string))
+        str = strcat(["$\mathbf{",inp_string(i),"}$"])
+        converted(i) = strsubst(str," ","\;")
+    end
+endfunction
+
+function alvsfs(inp_fig,color_style, figure_scale, aspect_ratio)
+    fig = inp_fig; cmap = SetColors();
+    check_inputs = [exists("color_style"),exists("figure_scale"),exists("aspect_ratio")]    
+    if check_inputs(1) ==0 then color_style = "alvbrand" end    
+    if check_inputs(2) == 0 then figure_scale = 0.9 end
+    if check_inputs(3) == 0 then aspect_ratio = "16:9" end      
+    execstr(strcat(["cmap = cmap.",color_style]))
+    [figure_size, figure_position] = Set_Figure_Window(figure_scale,aspect_ratio)
+    fig.background = -2; fig.color_map = cmap
+    fig.figure_size = figure_size
+    fig.figure_position = figure_position
+    for i=1:1:max(size(fig.children))
+        fig.children(i).background = -2
+        find_leg = fig.children(i).children(:).type == "Legend"
+        compound_rows = find(find_leg==%f)
+        row = find(find_leg == %t)
+        if row ~= []
+			fig.children(i).children(row).background = -2
+			fig.children(i).children(row).font_size = 3
+			fig.children(i).children(row).font_style = 8
+			fig.children(i).children(row).text = LaTeXify(fig.children(i).children(row).text)
+		end
+        fig.children(i).font_style = 8
+        fig.children(i).font_size = 4
+        fig.children(i).x_label.text = LaTeXify(fig.children(i).x_label.text)
+        fig.children(i).x_label.font_style = 8
+        fig.children(i).x_label.font_size = 5
+        fig.children(i).y_label.text = LaTeXify(fig.children(i).y_label.text)  
+        fig.children(i).y_label.font_style = 8
+        fig.children(i).y_label.font_size = 5
+        fig.children(i).title.text = LaTeXify(fig.children(i).title.text)
+        fig.children(i).title.font_style = 8
+        fig.children(i).title.font_size = 6
+        if fig.children(i).y_location == "right"
+            fig.children(i).grid = [-1,-1] 
+        else
+            fig.children(i).grid = [1,1]
+        end       
+        
+        if color_style ~= "off"
+            for j=1:1:max(size(compound_rows))
+                fig.color_map = cmap
+                temp = get(fig.children(i).children(compound_rows(j)),'children')
+                temp.thickness = 2
+                temp.foreground = j+1
+            end
+        else
+            for j=1:1:max(size(compound_rows))                
+                temp = get(fig.children(i).children(compound_rows(j)),'children')
+                temp.thickness = 2
+            end 
+        end        
+    end  
+endfunction
