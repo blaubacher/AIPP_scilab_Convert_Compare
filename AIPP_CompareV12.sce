@@ -49,6 +49,15 @@ aipp3=PreprocessAIPP3(aipp3,ChamberConfig);
 
 [data, header] = fscanfMat(AIPP235Doc);
 
+splits = tokens(header(1,:))
+ChamberCount.AIPP235 =  strtod(strsubst(splits(grep(splits,"Pabs")($)),"Pabs",""))
+ChamberCount.AIPP30 = max(size(ChamberConfig))
+
+if ChamberCount.AIPP235 ~= ChamberCount.AIPP30 then
+    mprintf("%s \n", "Chamber Count Mismatch")
+    break
+end
+
 SIMDATA = ParseMapTable(data,header,MapTable.All,aipp3,MapTable.GasSpecies,ChamberConfig)
 SIMDATA = ConvertPyroPilesToChambers(SIMDATA,ChamberConfig)
 SIMDATA = CorrectUnits(SIMDATA)
