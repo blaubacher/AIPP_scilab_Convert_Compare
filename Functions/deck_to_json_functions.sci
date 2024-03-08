@@ -239,22 +239,24 @@ function [ac]=GetHeatTransferDetails(ac, text, ncham)
         ac.assembly.walls(i).thermal_conductivity=default_conductivity_string
         ac.assembly.walls(i).specific_heat=default_specific_heat_string
         ac.assembly.walls(i).temperature=nab(text,'conditioning_temperature',1,'K')
-        ac.assembly.walls(i).right_connection.type='CONSTANT_HEAT'
-        ac.assembly.walls(i).right_connection.heat='0 W'
-        ac.assembly.walls(i).left_connection.type='CONSTANT_COEFFICIENT'
-        ac.assembly.walls(i).left_connection.chamber_index=i//string(i)
-        ac.assembly.walls(i).left_connection.heat_transfer_coefficient=...
-        nab(text, 'wall_heatloss_factor', i, 'W/(m^2 K)');
-        
-        first = part( ac.assembly.walls(i).left_connection.heat_transfer_coefficient,1)
-
-        if first == "+" | first =="-"
-            ac.assembly.walls(i).left_connection.heat_transfer_coefficient ...
-            = part(ac.assembly.walls(i).left_connection.heat_transfer_coefficient,2:$)
+        whf=GetNumFromDeck(text,'wall_heatloss_factor',i)
+        ispos=whf>0
+        select ispos
+        case(%f) then
+          ac.assembly.walls(i).left_connection.type='CONSTANT_COEFFICIENT'
+          ac.assembly.walls(i).left_connection.chamber_index=i
+          ac.assembly.walls(i).left_connection.heat_transfer_coefficient=string(-whf)+' W/(m^2 K)'
+        case(%t) then
+          ac.assembly.walls(i).left_connection.type='VARIABLE_COEFFICIENT'
+          ac.assembly.walls(i).left_connection.chamber_index=i
+          ac.assembly.walls(i).left_connection.scale_factor=whf*4.01      
         end
-        
+        ac.assembly.walls(i).right_connection.type='CONSTANT_HEAT'
+        ac.assembly.walls(i).right_connection.heat='0.0 W'
+
+
         ac.assembly.walls(ncham).temperature='294.15 K' // override the conditioning temp for the tank wall
-        
+       
         if i ==1 
             str = "ac.assembly.walls = list(ac.assembly.walls(1)"
         else
@@ -267,8 +269,8 @@ function [ac]=GetHeatTransferDetails(ac, text, ncham)
         else
             str = str + ")"
         end
+
     end
-    
     execstr(str)
         
 endfunction

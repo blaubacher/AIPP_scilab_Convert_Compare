@@ -55,6 +55,8 @@ function converted = LaTeXify(inp_string)
 endfunction
 
 function alvsfs(inp_fig,color_style, figure_scale, aspect_ratio)
+    
+    MultiTerminalLocation= [2000,-300];
     fig = inp_fig; cmap = SetColors();
     check_inputs = [exists("color_style"),exists("figure_scale"),exists("aspect_ratio")]    
     if check_inputs(1) ==0 then color_style = "alvbrand" end    
@@ -62,9 +64,10 @@ function alvsfs(inp_fig,color_style, figure_scale, aspect_ratio)
     if check_inputs(3) == 0 then aspect_ratio = "16:9" end      
     execstr(strcat(["cmap = cmap.",color_style]))
     [figure_size, figure_position] = Set_Figure_Window(figure_scale,aspect_ratio)
+    
     fig.background = -2; fig.color_map = cmap
     fig.figure_size = figure_size
-    fig.figure_position = figure_position
+    fig.figure_position = MultiTerminalLocation//figure_position
     for i=1:1:max(size(fig.children))
         fig.children(i).background = -2
         find_leg = fig.children(i).children(:).type == "Legend"

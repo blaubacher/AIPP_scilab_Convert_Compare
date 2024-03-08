@@ -107,14 +107,14 @@ endfunction
 function output_fig =  MultiPlotFromInput(InpStruc,X,Y,LegendLocation)
     figure_info = gcf()
     fig_number = figure_info.figure_id  
-    output_fig = figure(fig_number)    
+    output_fig = figure(fig_number) 
     ParseAndPlot(InpStruc,X,Y,LegendLocation,output_fig)
 endfunction
 
 function output_fig =  PlotFromInput(InpStruc,X,Y,LegendLocation)
     figure_info = gcf()
     fig_number = figure_info.figure_id + 1  
-    output_fig = figure(fig_number)  
+    output_fig = figure(fig_number);
     ParseAndPlot(InpStruc,X,Y,LegendLocation,output_fig)
 endfunction
 
