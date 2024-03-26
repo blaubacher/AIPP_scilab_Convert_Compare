@@ -62,10 +62,7 @@ SIMDATA = ParseMapTable(data,header,MapTable.All,aipp3,MapTable.GasSpecies,Chamb
 SIMDATA = ConvertPyroPilesToChambers(SIMDATA,ChamberConfig)
 SIMDATA = CorrectUnits(SIMDATA)
 
-
-
-
-
+multi = figure(1)
 subplot(121)
 MultiPlotFromInput(SIMDATA,"Time","Absolute_Pressure","in_upper_right")
 subplot(122)
@@ -75,11 +72,11 @@ MultiPlotFromInput(SIMDATA,"Time","Temperature","in_upper_right")
 PlotFromInput(SIMDATA,"Time","EDOTOUT","in_upper_right")
 PlotFromInput(SIMDATA,"Time","Mass_Flow_To_Tank","in_upper_right")
 PlotFromInput(SIMDATA,"Time","MDOTOUT","in_upper_right")
-//PlotFromInput(SIMDATA,"Time","MDOTGEN","in_upper_right")
+PlotFromInput(SIMDATA,"Time","MDOTGEN","in_upper_right")
 PlotFromInput(SIMDATA,"Time","EDOTGEN","in_upper_right")
-//PlotFromInput(SIMDATA,"Time","SURF","in_upper_right")
-//PlotFromInput(SIMDATA,"Time","DB","in_upper_right")
-//PlotFromInput(SIMDATA,"Time","BURNRATE","in_upper_right")
+PlotFromInput(SIMDATA,"Time","SURF","in_upper_right")
+PlotFromInput(SIMDATA,"Time","DB","in_upper_right")
+PlotFromInput(SIMDATA,"Time","BURNRATE","in_upper_right")
 PlotFromInput(SIMDATA,"Time","QWALL","in_lower_right")
 PlotFromInput(SIMDATA,"Time","EWALL","in_lower_right")
 PlotFromInput(SIMDATA,"Time","TWALL","in_lower_right")

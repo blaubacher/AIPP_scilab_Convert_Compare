@@ -98,7 +98,7 @@ end
         ylabel(strcat([strsubst(Y,"_"," ")," ",yunit]))
         legend(entity(AC,:),legend_holder(AC,:),"legend_location",LegendLocation)
     end
-    alvsfs(f1)
+    alvsfs(f1,"impart")
 
     
 drawnow()

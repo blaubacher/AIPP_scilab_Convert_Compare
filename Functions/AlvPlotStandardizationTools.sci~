@@ -56,7 +56,7 @@ endfunction
 
 function alvsfs(inp_fig,color_style, figure_scale, aspect_ratio)
     
-    MultiTerminalLocation= [2000,0];
+    MultiTerminalLocation= [2000,-500];
     fig = inp_fig; cmap = SetColors();
     check_inputs = [exists("color_style"),exists("figure_scale"),exists("aspect_ratio")]    
     if check_inputs(1) ==0 then color_style = "alvbrand" end    
