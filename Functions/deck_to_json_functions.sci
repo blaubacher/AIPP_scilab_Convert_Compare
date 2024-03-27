@@ -278,11 +278,11 @@ function [ac]=GetFilterDetails(ac, text, ncham)
     default_density_string="7833.0 kg/m^3"
     default_specific_heat_string="510.0 J/(kg K)"
 
-    for i=1:ncham
+    for i=1:ncham-1 // no filters in tank
         ac.assembly.chambers(i).filter.density=default_density_string
         ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
         ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
-        
+
         FilterCode=nab(text,'heat_loss_method',1,'') // 1st string
         FC=stripblanks(FilterCode)
         if(FC =='percentage') then
@@ -294,19 +294,6 @@ function [ac]=GetFilterDetails(ac, text, ncham)
         end
     end
 endfunction
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function [area]=ComputeAreaFromVolume(vol)
     volume=strtod(tokens(vol)(1));

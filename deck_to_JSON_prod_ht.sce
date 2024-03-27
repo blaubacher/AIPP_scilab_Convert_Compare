@@ -36,6 +36,8 @@ ac=GetTimes(text)
 
 ac=GetChamberDetails(ac, text, ncham)
 
+ac=GetFilterDetails(ac, text, ncham)
+
 ac=GetPyroDetails(ac,text,ncham)
 
 

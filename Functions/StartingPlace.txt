@@ -1,1 +1,1 @@
-C:\fortran\projects\archaeologic\aipp\aipp\brian\heattransfertests\variableh\asp
+C:\fortran\projects\archaeologic\aipp\aipp\brian\heattransfertests\filter
