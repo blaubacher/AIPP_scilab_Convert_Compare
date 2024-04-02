@@ -161,6 +161,11 @@ function [ac]=GetPyroDetails(ac, text, ncham)
             if ac.assembly.chambers(i).pyro == []
                ac.assembly.chambers(i).pyro=null()  
             end
+            
+            if ac.assembly.chambers(i).filter == []
+               ac.assembly.chambers(i).filter = null()
+            end
+            
         catch
             mprintf(' %s\n',' no pyros' )
         end
@@ -279,16 +284,20 @@ function [ac]=GetFilterDetails(ac, text, ncham)
     default_specific_heat_string="510.0 J/(kg K)"
 
     for i=1:ncham-1 // no filters in tank
-        ac.assembly.chambers(i).filter.density=default_density_string
-        ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
-        ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
+
 
         FilterCode=nab(text,'heat_loss_method',1,'') // 1st string
         FC=stripblanks(FilterCode)
         if(FC =='percentage') then
+            ac.assembly.chambers(i).filter.density=default_density_string
+            ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
+            ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
             ac.assembly.chambers(i).filter.method='PERCENTAGE'
             ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'pack_heatloss_percent_removed',i,''))/100.
         else
+            ac.assembly.chambers(i).filter.density=default_density_string
+            ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
+            ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
             ac.assembly.chambers(i).filter.method='KTNU' // will become KNTU once Archaeologic fixes it.
             ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'kntu_value',1,''))
         end
@@ -312,4 +321,6 @@ function [area]=ComputeAreaFromVolume(vol)
     area=string(area*1e4)+' cm^2'
 endfunction
 
-
+function []=cls
+    close(winsid())
+endfunction
