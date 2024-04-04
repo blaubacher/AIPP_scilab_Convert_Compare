@@ -80,11 +80,6 @@ MultiPlotFromInput(SIMDATA,"Time","Temperature","in_upper_right")
 //PlotFromInput(SIMDATA,"Time","QWALL","in_lower_right")
 //PlotFromInput(SIMDATA,"Time","EWALL","in_lower_right")
 //PlotFromInput(SIMDATA,"Time","TWALL","in_lower_right")
-PlotFromInput(SIMDATA,"Time","TPACK","in_lower_right")
-PlotFromInput(SIMDATA,"Time","QPACK","in_lower_right")
-PlotFromInput(SIMDATA,"Time","EGT","in_lower_right")
-PlotFromInput(SIMDATA,"Time","EPACK","in_lower_right")
-
 SavePlots(Folder_Out)
 clear("l1","l2","l3","l4","last_start","out_count","out_json","rep","rows"...
 ,"today","inp_json","i","header","folderinfo","fnaipp3","data","Folder_Out"...

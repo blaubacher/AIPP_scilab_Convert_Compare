@@ -298,7 +298,7 @@ function [ac]=GetFilterDetails(ac, text, ncham)
             ac.assembly.chambers(i).filter.density=default_density_string
             ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
             ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
-            ac.assembly.chambers(i).filter.method='KTNU' // will become KNTU once Archaeologic fixes it.
+            ac.assembly.chambers(i).filter.method='KNTU' // will become KNTU once Archaeologic fixes it.
             ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'kntu_value',1,''))
         end
     end
