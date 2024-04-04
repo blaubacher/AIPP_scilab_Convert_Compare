@@ -56,7 +56,7 @@ toJSON(res,3,'testinput.json')
 
 //The Scilab JSON converter is not formatting the pyro information correctly. 
 //To fix this, the JSON is read in as a text file and square brackets are added
-dat = mgetl('testinput.json')
+dat = mgetl('testinput.json'); mdelete('testinput.json')
 dat = FixSquareBracesforPyro(dat)
 
 

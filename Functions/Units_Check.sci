@@ -14,8 +14,6 @@ function struc_corrected = CorrectUnits(struc_inp)
                     ,allfields(i),".",temp(j),".",temp2(2),".Unit"]))
                     if aipp235unit ~= aipp30unit
                         execstr(strcat(["mismatch_units_list(i,1)=allfields(i)"]))
-                        disp(aipp235unit);
-                        disp(allfields(i));
                         execstr(strcat(["mismatch_units_list(i,2)= aipp235unit"]))
                         execstr(strcat(["mismatch_units_list(i,3)= aipp30unit"]))
                         factor = correct_units(aipp235unit,aipp30unit)
@@ -37,9 +35,6 @@ function struc_corrected = CorrectUnits(struc_inp)
                 execstr(strcat(["aipp30unit =dat.",allfields(i),"."temp(2),".Unit"]))
                 if aipp235unit ~= aipp30unit
                         execstr(strcat(["mismatch_units_list(i,1)=allfields(i)"]))
-                        this=strcat(["mismatch_units_list(i,2)= aipp235unit"])
-                        disp('this is the string that is running');
-                        disp(this);
                         execstr(strcat(["mismatch_units_list(i,2)= aipp235unit"]))
                         execstr(strcat(["mismatch_units_list(i,3)= aipp30unit"]))  
                         factor = correct_units(aipp235unit,aipp30unit)
@@ -54,6 +49,14 @@ function struc_corrected = CorrectUnits(struc_inp)
             end                      
         end                
     end
+    exists = mismatch_units_list(:,1) ~= ""
+    mismatch_units_list = mismatch_units_list(exists,1:3)
+    x = mismatch_units_list(:,1)
+    y = mismatch_units_list(:,2)
+    z = mismatch_units_list(:,3)
+    mprintf("\n%s\n", "Unit correction in place for the following  variables:")
+    mprintf("%19s %10s %10s\n", "Variable", "2.3.5 Unit", "3.0 Unit")
+    mprintf("%19s %10s %10s\n", x, y, z)
     csvWrite(mismatch_units_list,"MismatchedUnitsSummary.txt")
     struc_corrected = dat
 endfunction

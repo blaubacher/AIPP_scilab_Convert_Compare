@@ -80,10 +80,22 @@ function ChamberConfig = ReadAIPP30InputDeck(deckfile)
         
     end
     
-    ChamberConfig = chamber   
+    ChamberConfig = chamber
+    
+    for i = 1:1:chambercount
+        try
+            if dat_struc.aipp_calculation.assembly.chambers(i).filter.method ~= []
+                ChamberConfig(i).filter = %t
+                mprintf("Filter found in Chamber %i\n", i)
+            end
+        catch
+            ChamberConfig(i).filter = %f
+            mprintf("No filter present in Chamber %i\n", i)
+        end
+    end
 
 endfunction
 
 //mass_flows = ConvertOrificeToChamber(aipp3.mass_flows)
-
+//AIPP30Input = "D:\AIPP3ScilabConvertCompare\AIPP3Compare\Comparator\TestCases\Filters\Tpack Test\TwoChamberFilter.json"
 //ChamberConfig = ReadAIPP30InputDeck(AIPP30Input)
