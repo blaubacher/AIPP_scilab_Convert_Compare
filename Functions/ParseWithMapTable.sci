@@ -20,7 +20,6 @@ if extrarows ~= [] then
             extra_titles(1,j) = strcat([extra_titles(1,j),string(ChamberNo)])
         end
         data = cat(2,data,extra_data)
-        disp(titles); disp(extra_titles);
         titles = cat(2,titles,extra_titles)
         units = cat(2, units,extra_units)
     end
@@ -102,6 +101,23 @@ for i =1:1:max(size(table_info))
                 end
             end
             
+        case("filter")
+            filter_counter = 1
+            for j = 1:1:chamber_count.AIPP_3_0
+                if aipp3inp(j).filter == %t
+                    execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                ,".AIPP_3_0.Data=aipp3.",table_info(i,col_3_0),"(",string(filter_counter)",:)"]))
+                execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                ,".AIPP_3_0.Unit=aipp3.",table_info(i,col_3_0_units)]))
+                filter_counter = filter_counter + 1
+                else
+                    filler = zeros(1,max(size(aipp3.times)))
+                    execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                ,".AIPP_3_0.Data=filler"]))
+                execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                ,".AIPP_3_0.Unit=aipp3.",table_info(i,col_3_0_units)]))
+                end
+            end
         case("pile")
             for j=1:1:size(aipp3.pyro_names)(1)
                 if aipp3.pyro_names(j) ~= []

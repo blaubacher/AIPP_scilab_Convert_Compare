@@ -17,7 +17,7 @@ for i=1:1:max(size(rows.json))
         out_count = out_count +1
     elseif grep(content(2),"aipp_calculation") ~= [] then
         inp_json(inp_count) = folderinfo.name(rows.json(i))
-        inp_count = inp_count +1
+        inp_count = inp_count + 1
     end
 end
 
@@ -67,22 +67,19 @@ subplot(121)
 MultiPlotFromInput(SIMDATA,"Time","Absolute_Pressure","in_upper_right")
 subplot(122)
 MultiPlotFromInput(SIMDATA,"Time","Temperature","in_upper_right")
-
-//Function input: PlotFromInput(Input Structure, X Quantity, Y Quantity, Legend Location)
-PlotFromInput(SIMDATA,"Time","EDOTOUT","in_upper_right")
-PlotFromInput(SIMDATA,"Time","Mass_Flow_To_Tank","in_upper_right")
-PlotFromInput(SIMDATA,"Time","MDOTOUT","in_upper_right")
-PlotFromInput(SIMDATA,"Time","MDOTGEN","in_upper_right")
-PlotFromInput(SIMDATA,"Time","EDOTGEN","in_upper_right")
+//
+////Function input: PlotFromInput(Input Structure, X Quantity, Y Quantity, Legend Location)
+//PlotFromInput(SIMDATA,"Time","EDOTOUT","in_upper_right")
+//PlotFromInput(SIMDATA,"Time","Mass_Flow_To_Tank","in_upper_right")
+//PlotFromInput(SIMDATA,"Time","MDOTOUT","in_upper_right")
+//PlotFromInput(SIMDATA,"Time","MDOTGEN","in_upper_right")
+//PlotFromInput(SIMDATA,"Time","EDOTGEN","in_upper_right")
 //PlotFromInput(SIMDATA,"Time","SURF","in_upper_right")
 //PlotFromInput(SIMDATA,"Time","DB","in_upper_right")
 //PlotFromInput(SIMDATA,"Time","BURNRATE","in_upper_right")
 //PlotFromInput(SIMDATA,"Time","QWALL","in_lower_right")
 //PlotFromInput(SIMDATA,"Time","EWALL","in_lower_right")
 //PlotFromInput(SIMDATA,"Time","TWALL","in_lower_right")
-PlotFromInput(SIMDATA,"Time","QPACK","in_lower_right")
-PlotFromInput(SIMDATA,"Time","TPACK","in_lower_right")
-//PlotFromInput(SIMDATA,"Time","QPACK","in_lower_right")
 SavePlots(Folder_Out)
 clear("l1","l2","l3","l4","last_start","out_count","out_json","rep","rows"...
 ,"today","inp_json","i","header","folderinfo","fnaipp3","data","Folder_Out"...
