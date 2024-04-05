@@ -1,1 +1,1 @@
-D:\AIPP3ScilabConvertCompare\AIPP3Compare\Comparator\TestCases\Filters\PercentHeatLoss
+C:\fortran\projects\archaeologic\aipp\aipp\brian\heattransfertests\variableh\asp
