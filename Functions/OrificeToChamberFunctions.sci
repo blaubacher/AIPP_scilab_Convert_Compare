@@ -25,7 +25,9 @@ endfunction
 function aipp3fixed = PreprocessAIPP3(aipp3,ChamberConfig)
     aipp3fixed = aipp3
     fields = fieldnames(aipp3)
+    r = grep(fields,"exit_gas_temperatures")
     rows = grep(fields,"flows")
+    rows = cat(2,r,rows)
     for i=1:1:max(size(rows))
         execstr(strcat(["temp=ConvertOrificeToChamber("...
         ,"aipp3.",fields(rows(i)),")"]))
