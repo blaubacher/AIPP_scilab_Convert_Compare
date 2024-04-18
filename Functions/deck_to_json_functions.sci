@@ -294,12 +294,14 @@ function [ac]=GetFilterDetails(ac, text, ncham)
             ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
             ac.assembly.chambers(i).filter.method='PERCENTAGE'
             ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'pack_heatloss_percent_removed',i,''))/100.
+            ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
         else
             ac.assembly.chambers(i).filter.density=default_density_string
             ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
             ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
             ac.assembly.chambers(i).filter.method='KNTU' // will become KNTU once Archaeologic fixes it.
             ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'kntu_value',1,''))
+            ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
         end
     end
 endfunction

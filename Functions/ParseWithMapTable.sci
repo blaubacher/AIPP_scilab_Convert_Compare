@@ -35,7 +35,7 @@ chamber_count.AIPP_2_3_5 = max(strtod(strsubst(titles(grep(titles,"Pabs")),"Pabs
 chamber_count.AIPP_3_0 = max(size(aipp3inp));
 
 if chamber_count.AIPP_2_3_5 ~= chamber_count.AIPP_3_0 then
-    messagebox(["The number of changes between AIPP 2.3.5 and AIPP 3.0 is not consistent" "Please verify your inputs"]...
+    messagebox(["The number of chambers between AIPP 2.3.5 and AIPP 3.0 is not consistent" "Please verify your inputs"]...
     , "ERROR: Chamber Mismatch")
 end
 
@@ -64,11 +64,15 @@ for i =1:1:max(size(table_info))
 
         case("orifice") then 
             for j =1:1:chamber_count.AIPP_3_0
-                mprintf("---> Chamber %i converted from per orifice basis to per chamber basis\n",j)
-                execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
-                ,".AIPP_3_0.Data=aipp3.",table_info(i,col_3_0),"(",string(j)",:)"]))
-                execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
-                ,".AIPP_3_0.Unit=aipp3.",table_info(i,col_3_0_units)]))
+                try
+                    mprintf("---> Chamber %i converted from per orifice basis to per chamber basis\n",j)
+                    execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                    ,".AIPP_3_0.Data=aipp3.",table_info(i,col_3_0),"(",string(j)",:)"]))
+                    execstr(strcat(["SIMDATA.",table_info(i,col_MV),".Chamber",string(j)...
+                    ,".AIPP_3_0.Unit=aipp3.",table_info(i,col_3_0_units)]))
+                catch
+                    mprintf("%s  %i/n", "No output orifice in Chamber",j)
+                end 
             end
             
         case("chamber")
