@@ -89,7 +89,7 @@ end
     if axes_count(1) == 2 then
         sca(a); 
         fig_info.children(2).y_label.text = strcat([strsubst(Y,"_"," ")," (",yunit,")"]);
-        l1 = legend(entity(1,:),legend_holder(1,:),"legend_location","in_lower_right")
+        l1 = legend(entity(1,:),legend_holder(1,:),"legend_location","in_lower_left")
         sca(b)
         fig_info.children(1).y_label.text = strcat([strsubst(Y,"_"," ")," Tank (","KPa)"])
         l2 = legend(entity(2,:),legend_holder(2,:),"legend_location","in_upper_right")
