@@ -26,7 +26,7 @@ function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
 //                mprintf("%s %s \n", "New string value: ", replace)
                 exponentindex = strindex(json_txt(rows(j)), "^")
                 if exponentindex ~= []
-                    first = part(json_txt(rows(j)), 1:exponentindex)
+//                    first = part(json_txt(rows(j)), 1:exponentindex)
                     second = part(json_txt(rows(j)), exponentindex + 1:$)
                     first = strsubst(first,part(temp, numsindex), replace)
                     first =  first + second

@@ -18,7 +18,7 @@ rows.aipp235 = grep(folderinfo.name, ".deck")
 l1  = list("AIPP 2.3.5 Input Decks:",1,[folderinfo.name(rows.aipp235)']);
 rep = x_choices('Select AIPP 2.3.5 Input Deck To Convert',list(l1));
 AIPP235Doc = folderinfo.name(rows.aipp235)(rep(1))
-//disp(AIPP235Doc)
+disp(AIPP235Doc)
 DeckTitle = strsplit(AIPP235Doc,".")(1)
 
 // now read in the deck file you want to convert
@@ -70,7 +70,7 @@ dat = FixJSON(dat)
 doubleVars = ["burn_rate_factor","opens_at","temperature","flame_spread_time"...
 ,"diameter","discharge_coefficient","mass","dome_height","reference_burn_rate"...
 ,"volume","burn_rate_exponent", "thickness", "heat_flux",...
-"heat_transfer_coefficient", "viscous_flow_factor","scale_factor", "coefficient"]
+ "viscous_flow_factor","scale_factor", "]
 fixedInts = ConvertIntsToDoublesJSON(dat, doubleVars)
 
 
