@@ -91,7 +91,9 @@ for i =1:1:max(size(table_info))
             
         case("pyro")
             for j=1:1:size(aipp3.pyro_names)(1)
-                if aipp3.pyro_names(j) ~= []
+//                modifier = 
+                if aipp3.pyro_names(j) ~= ""
+                    disp(aipp3.pyro_names(j))
                     for k=1:1:size(aipp3.pyro_names(j),"c")
                         execstr(strcat(["SIMDATA.Pyro_Output."...
                         ,aipp3.pyro_names(j)(k),".Chamber",string(j),"."...

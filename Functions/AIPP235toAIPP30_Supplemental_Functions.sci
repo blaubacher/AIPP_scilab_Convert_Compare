@@ -95,6 +95,7 @@ endfunction
 // simple script to read in AIPP 3 output JSON file and pull it into a structure within SCILAB
 function [res]=readaipp3(fn)
     a=mgetl(fn);
+    a = strsubst(a, '[]', '[""""]')
     res=fromJSON(a)
 endfunction
 
