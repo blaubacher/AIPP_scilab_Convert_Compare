@@ -1,71 +1,50 @@
 function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
     for i=1:1:max(size(vars))
-        mprintf("%s %s \n", "Converting ints to doubles for:", vars(i))
-        rows = grep(json_txt, """" + vars(i))
-
+        rows = grep(json_txt,vars(i))
         if rows ~= []
             for j=1:1:max(size(rows))
-//                mprintf("\n%s \n %s\n", "Original string: ", json_txt(rows(j)))
                 colsindex = strindex(json_txt(rows(j)),":")
                 temp = strsplit(json_txt(rows(j)),":")(2)
-//                mprintf("%s %s\n", "Data found after the colon:", temp)
-                temp = strsplit(temp, " ")(2)                
-//                mprintf("%s %s \n", "Data before the space: ", temp)
                 numsindex = strindex(temp,"/[0-9]/",'r')
-//                disp(numsindex)
-                decindex = strindex(temp, ".")
+                numsindex = numsindex+colsindex
+                start = min(numsindex)
+                stop = max(numsindex)
 
-                if decindex < max(numsindex)
-                    numsindex = cat(2,numsindex,decindex)
-                    numsindex = gsort(numsindex,'g', 'i')                    
+                intval = part(json_txt(rows(j)),start:stop)
+                if strindex(intval,"^") ~=0
+                    intval = strsplit(intval," ")(1)
                 end
-//                mprintf("%s %s\n", "Identified the following numerical input: ", part(temp, numsindex))
-                new = strtod(part(temp,numsindex))
-//                mprintf("%s %f \n", "Strtod output: ", new)
-                replace = msprintf("%.6f", new)
-//                mprintf("%s %s \n", "New string value: ", replace)
-                exponentindex = strindex(json_txt(rows(j)), "^")
-                if exponentindex ~= []
-                    first = part(json_txt(rows(j)), 1:exponentindex)
-                    second = part(json_txt(rows(j)), exponentindex + 1:$)
-                    first = strsubst(first,part(temp, numsindex), replace)
-                    first =  first + second
-                    json_txt(rows(j)) = first
-                else
-                    json_txt(rows(j)) = strsubst(json_txt(rows(j)), ...
-                    part(temp, numsindex),...
-                    replace)
+                intval2 = intval
+                if part(json_txt(rows(j)),start-1) == "."                
+                    intval2 = strcat(["0.", intval2])
+                    intval = strcat([".",intval])
                 end
+                json_txt(rows(j)) = strsubst(json_txt(rows(j)),intval...
+                ,msprintf("%.6f",strtod(intval2)))  
             end
-        end
+        end 
     end
     doubled_ints = json_txt
 endfunction
 
-function FixedJSON = FixJSON(InputJSON)
-    for i =1:1:max(size(InputJSON))
-        FixedJSON(i) = strsubst(InputJSON(i),"\/","/")
-    end    
-endfunction
-
 function FixedBraces = FixSquareBracesforPyro(JSONfromStructure)
 
-    dat = JSONfromStructure
-    pyrolocs = grep(dat,"pyro")
-    for i=1:1:max(size(pyrolocs))
-        dat(pyrolocs(i),1) = strsubst(dat(pyrolocs(i),1),"{","[{")
-        bracelocs.start = grep(dat(pyrolocs(i):pyrolocs(i)+20,1),"{")
-    bracelocs.end = grep(dat(pyrolocs(i):pyrolocs(i)+20,1),"}")
+dat = JSONfromStructure    
+pyrolocs = grep(dat,"pyro")
+for i=1:1:max(size(pyrolocs))
+    dat(pyrolocs(i),1) = strsubst(dat(pyrolocs(i),1),"{","[{")
+    bracelocs.start = grep(dat(pyrolocs(i):pyrolocs(i)+20,1),"{")
+bracelocs.end = grep(dat(pyrolocs(i):pyrolocs(i)+20,1),"}")
     if bracelocs.start(2) > bracelocs.end(1) then
-row = pyrolocs(i)+bracelocs.end(1)-1
-dat(row,1) = strsubst(dat(row,1),"}","}]")
-else
-row = pyrolocs(i)+bracelocs.end(2)-1
-dat(row,1) = strsubst(dat(row,1),"}","}]")
+        row = pyrolocs(i)+bracelocs.end(1)-1
+        dat(row,1) = strsubst(dat(row,1),"}","}]")
+    else
+        row = pyrolocs(i)+bracelocs.end(2)-1
+        dat(row,1) = strsubst(dat(row,1),"}","}]")
+    end
+    
 end
-
-end
-FixedBraces = dat
+    FixedBraces = dat
 endfunction
 
 // script to plunge into any file to pull a subset of the data based on fieldnames
@@ -95,23 +74,37 @@ endfunction
 // simple script to read in AIPP 3 output JSON file and pull it into a structure within SCILAB
 function [res]=readaipp3(fn)
     a=mgetl(fn);
-    a = strsubst(a, '[]', '[""""]')
     res=fromJSON(a)
+endfunction
+
+// function to obtain token (x,y) from text, where text=mgetl(fn))
+function [str]=nabstr(text,row,tokennumber,unit_to_apply_in_deck)
+    // function that identifies values in the aipp.inp files and then
+    // creates the proper translated entries for the JSON files
+    str=tokens(text(row))(tokennumber) +' ' +unit_to_apply_in_deck
+endfunction
+
+function [val]=nabval(text,row,tokennumber)
+    // function that identifies values in the aipp.inp files and then
+    // creates the proper translated entries for the JSON files
+    val=strtod(tokens(text(row))(tokennumber))
+endfunction
+
+function [str]=nabrow(text,row)
+    // function that identifies values in the aipp.inp files and then
+    // creates the proper translated entries for the JSON files
+    str=text(row)
 endfunction
 
 function [str]=nab(text,fieldname,tokennumber,unit)
     // function that identifies values in the DECK files and then
     // creates the proper translated entries for the JSON files
     [nrows,junk]=size(text)
-
     for i=1:nrows
         fields(i)=(tokens(text(i))($))
     end
-
     therow=find(fields==fieldname)
-
     str=tokens(text(therow))(tokennumber) +' ' +unit 
-
 endfunction
 
 // script to read in an entire ASCII file with headers and convert the table to a Structure
@@ -150,7 +143,7 @@ function [res]=filetojsonstruct(dir,fn)
 endfunction
 
 function [structure] = pyrotojson4(fn)
-
+    
 
     res=mgetl(fn)
     fields=tokens(res(1))
@@ -182,7 +175,7 @@ function [structure] = pyrotojson4(fn)
         value=strtod(tokens(values(index)))*10.0
         if value ~= 0 
             str="this.gas_yields."+sname+'=""'+string(value)+' mol/kg""'
-            //            disp('str is ',str)
+            disp('str is ',str)
             execstr(str)
         end
     end
@@ -196,24 +189,24 @@ function [structure] = pyrotojson4(fn)
     execstr(str)    
     str="this.burn_rate_temperature_sensitivity="""+string(values(18))+' 1/K""'
     execstr(str)    
-
-
+    
+    
     // now clean up the WC info
-    //    disp("values 14 =",values(14),"values 13 = ", values(13))
+    disp("values 14 =",values(14),"values 13 = ", values(13))
     if strtod(values(14)) == 0
         values(14) = "5"
-        //        disp("values 14 triggered")
+        disp("values 14 triggered")
     end
     if strtod(values(13)) == 0 then
         values(13) = "50"
-        //        disp("values 13 triggered")
+        disp("values 13 triggered")
     end
-    str="this.wild_card = struct(''Cp/R''" +',' +string(values(14)) +')'
-    execstr(str) 
-    str="this.wild_card.molar_mass="""+string(values(13))+' g/mol""'
-    execstr(str)        
-    str="this.wild_card.wc_gas_yield="""+string(strtod(values(11))*10.0)+' mol/kg""'
-    execstr(str)               
+        str="this.wild_card = struct(''Cp/R''" +',' +string(values(14)) +')'
+        execstr(str) 
+        str="this.wild_card.molar_mass="""+string(values(13))+' g/mol""'
+        execstr(str)        
+        str="this.wild_card.wc_gas_yield="""+string(strtod(values(11))*10.0)+' mol/kg""'
+        execstr(str)               
 
     structure=this;
 endfunction
@@ -232,13 +225,17 @@ function [this]=makepyrofiles()
         mprintf("%s \n","*****"+filename) 
         filename=strsplit(filename,'.') // strip off just the filename
         str='this.'+strsubst(filename(1),"-","_")+'=pyrotojson4(S.name(i))'
-        //        disp(str)
+        disp(str)
         execstr(str)
     end   
     toJSON(this,4,'c:\aipp23\pyrofiles\pyrolist.json')
     PyroStrings = mgetl("c:\aipp23\pyrofiles\pyrolist.json")
-    FixedJSON = FixJSON(PyroStrings)
-    vars = ["burn_rate_exponent","Cp/R","molar_mass","wc_gas_yield"]
-    doubled_ints = ConvertIntsToDoublesJSON(FixedJSON, vars)    
+    vars = ["burn_rate_exponent","Cp\/R","molar_mass","wc_gas_yield"]
+    doubled_ints = ConvertIntsToDoublesJSON(PyroStrings, vars)
+    for i =1:1:max(size(doubled_ints))
+        disp(doubled_ints(i))
+        doubled_ints(i) = strsubst(doubled_ints(i),"\/","/")
+        disp(doubled_ints(i))
+    end
     csvWrite(doubled_ints,"c:\aipp23\pyrofiles\pyrolist.json")
 endfunction
