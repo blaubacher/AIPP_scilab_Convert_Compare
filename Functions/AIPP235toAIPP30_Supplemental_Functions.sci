@@ -27,6 +27,12 @@ function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
     doubled_ints = json_txt
 endfunction
 
+function FixedJSON = FixJSON(InputJSON)
+    for i =1:1:max(size(InputJSON))
+        FixedJSON(i) = strsubst(InputJSON(i),"\/","/")
+    end    
+endfunction
+
 function FixedBraces = FixSquareBracesforPyro(JSONfromStructure)
 
 dat = JSONfromStructure    

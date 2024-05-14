@@ -254,7 +254,7 @@ function [ac]=GetHeatTransferDetails1(ac, text, ncham)
             ac.assembly.walls(i).left_connection.type='CONSTANT_COEFFICIENT'
             ac.assembly.walls(i).left_connection.chamber_index=i//string(i)
             ac.assembly.walls(i).left_connection.heat_transfer_coefficient=...
-            strcat(string(hl), ' W/(m^2 K)');
+            strcat([string(abs(hl)), ' W/(m^2 K)']);
         end
         ac.assembly.walls(i).right_connection.type='CONSTANT_HEAT'
         ac.assembly.walls(i).right_connection.heat='0.0 W'

@@ -1,1 +1,1 @@
-D:\AIPP3ScilabConvertCompare\AIPP3Compare\Comparator\TestCases\CombinedHeatTransfer\Chamber1HT
+D:\AIPP3ScilabConvertCompare\AIPP3Compare\Comparator\TestCases\RKF_Comparison\Slide20

@@ -9,11 +9,7 @@ getd(FunctionDir);
 
 StartingDir = uigetdir(); cd(StartingDir)
 pi=3.1415926;
-folderinfo =dir()
-rows.aipp235 = grep(folderinfo.name, "aipp.inp")
-l1  = list("AIPP 2.3.5 Input Decks:",1,[folderinfo.name(rows.aipp235)']);
-rep = x_choices('Select AIPP 2.3.5 Input Deck To Convert',list(l1));
-AIPP235Doc = folderinfo.name(rows.aipp235)(rep(1))
+AIPP235Doc = "aipp.inp"
 //disp(AIPP235Doc)
 DeckTitle = strsplit(AIPP235Doc,".")(1)
 
@@ -30,16 +26,16 @@ ncham=strtod(tokens(text(5))(1))
 // have to use grep to find the correct line since the deck file can have a variable number of lines.  :*()
 ac=GetTimes1(text)
 
-ac=GetChamberDetails1(ac, text, ncham)
+ac=GetChamberDetails1(ac, text)
 
-ac=GetFilterDetails1(ac, text, ncham)
+ac=GetFilterDetails1(ac, text)
 
-ac=GetPyroDetails1(ac,text,ncham)
+ac=GetPyroDetails1(ac,text)
 
 
-ac=GetOrificeDetails1(ac,text,ncham)
+ac=GetOrificeDetails1(ac,text)
 
-ac=GetHeatTransferDetails1(ac, text, ncham)  
+ac=GetHeatTransferDetails1(ac, text)  
 
 //ac.tank_id=ncham
 res.aipp_calculation=ac;
