@@ -42,83 +42,85 @@ function [ac]=GetChamberDetails1(ac, text)
 endfunction
 
 
-function [ac]=GetPyroDetails1(ac, text, ncham)
+function [ac]=GetPyroDetails1(ac, text)
+    pi=3.14159265
+    pyro_file_row=42
+    pyro_mass_row=43
+    pyro_density_row=50
+    flame_spread_row=55
+    ignition_delay_row=54
+    burn_rate_row=51
+    n_row=52
+    sigmap_row=53
+    shape_row=44
+
+    ncham=nabval(text,2,1)
+
     for i=1:ncham
-        temp=nab(text,'pyro_file',i,'')
-//        disp('temp is ',temp)
+        temp=nabstr(text,pyro_file_row,i,"")
+        disp('temp is ',temp)
         name=(strsplit(temp,'.'))(1) // omit the .pyro file extension
-        pyromass=GetNumFromDeck(text,'generant_weight',i);
+        pyromass=nabval(text,pyro_mass_row,i);
+        rho=nabval(text,pyro_density_row,i)
 //        disp('first pyromass is ',pyromass)
 
         if pyromass ~= 0 then
             ac.assembly.chambers(i).pyro.formulation=strsubst(name,"-","_")
             // get the actual number of the density 
-            rho=GetNumFromDeck(text,'generant_density',i)
-            ac.assembly.chambers(i).pyro.density=nab(text,'generant_density',i,'g/cm^3')
-            ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'  
+            ac.assembly.chambers(i).pyro.density=nabstr(text,pyro_density_row,i,'g/cm^3')           
+            ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'
             ac.assembly.chambers(i).pyro.piles=1
-            ac.assembly.chambers(i).pyro.flame_spread_time=nab(text,'flame_spread_time',i,'s')  
-            ac.assembly.chambers(i).pyro.ignition_time=nab(text,'ignition_delay',i,'s')      
-            ac.assembly.chambers(i).pyro.reference_burn_rate=nab(text,'ref_burn_rate',i,'mm/s')
-            ac.assembly.chambers(i).pyro.burn_rate_exponent=strtod(nab(text,'burn_rate_pressure_exp_n',i,''))
-            ac.assembly.chambers(i).pyro.burn_rate_temperature_sensitivity=nab(text,'burn_rate_temp_sensitivity_sigma_p',i,'1/K')                
-            ac.assembly.chambers(i).pyro.amount=nab(text,'generant_weight',i,'g')        
+            ac.assembly.chambers(i).pyro.flame_spread_time=nabstr(text,flame_spread_row,i,'s')  
+            ac.assembly.chambers(i).pyro.ignition_time=nabstr(text,ignition_delay_row,i,'s')      
+            ac.assembly.chambers(i).pyro.reference_burn_rate=nabstr(text,burn_rate_row,i,'mm/s')
+            ac.assembly.chambers(i).pyro.burn_rate_exponent=nabval(text,n_row,i)
+            ac.assembly.chambers(i).pyro.burn_rate_temperature_sensitivity=nabstr(text,sigmap_row,i,'1/K')                
+            ac.assembly.chambers(i).pyro.amount=nabstr(text,pyro_mass_row,i,'g')        
             // now a somewehat complex process is involved to identify the proper tags for the different shapes, so this will  be a 'case' statement
-            shape_code=strtod(nab(text,'gen_shape_code',i,""))
-//            disp('shape_code',shape_code)
+            shape_code=nabval(text,shape_row,i)
+
             select shape_code
             case(1) then // tablet (don't need to worry about the number of tablets, aipp will calc that)
                 ac.assembly.chambers(i).pyro.shape.geometry="tablet"
-                ac.assembly.chambers(i).pyro.shape.total_height=nab(text,'starID_waferID_triBL_surfAREA',i,'mm') 
-                ac.assembly.chambers(i).pyro.shape.diameter=nab(text,'tabOD_waferOD_starMD_triRAD',i,'mm')         
-                ac.assembly.chambers(i).pyro.shape.dome_height=nab(text,'tabTHICK_triTHICK_waferTHICK_starOD',i,'mm') 
-                ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'  
-                
+                ac.assembly.chambers(i).pyro.shape.total_height=nabstr(text,47,i,'mm') 
+                ac.assembly.chambers(i).pyro.shape.diameter=nabstr(text,46,i,'mm')         
+                ac.assembly.chambers(i).pyro.shape.dome_height=nabstr(text,48,i,'mm') 
+                ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'                  
             case(2) then //sphere (don't need to worry about the number of spheres, aipp will calc that)
                 ac.assembly.chambers(i).pyro.shape.geometry="sphere"           
-                temp=nab(text,'sphereOD_starNFIN',i,''); // just get the value
-                temp=strcat([string(strtod(temp)/2), " mm"]) // convert diameter to radius
+                temp=nabval(text,49,i); // just get the value
+                temp=strcat([string(temp/2), " mm"]) // convert diameter to radius
                 ac.assembly.chambers(i).pyro.shape.radius=temp;
-                ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'  
-            
+                ac.assembly.chambers(i).pyro.amount=msprintf("%.6f",pyromass)+' g'       
             case(3) then  // wafer
                 // now calculate the nearest integer value of wafers
-                id=GetNumFromDeck(text,'tabTHICK_triTHICK_waferTHICK_starOD',i)
-                od=GetNumFromDeck(text,'tabOD_waferOD_starMD_triRAD',i)
-                h=GetNumFromDeck(text,'starID_waferID_triBL_surfAREA',i)
+                id=nabval(text,45,i)
+                od=nabval(text,46,i)
+                h=nabval(text,47,i)
+                disp('id od h ',[id, od, h])
                 vol=pi*(od^2-id^2)*h/4;
-                n=round(1000*(pyromass/(vol*rho))) // 1000 is units correction
-//                disp('n_wafers was found to be ',n)    
-                
-                
-                nwafers=1000*pyromass/(vol*rho) // scaled
-//                disp('nwafers as real is ',nwafers)
-                nwafersi=round(nwafers)
-//                disp('rounded, it is  ',nwafersi)
-                
+                disp('values are',[pyromass, vol, rho])
+                nwafers=round(1000*(pyromass/(vol*rho))) // 1000 is units correction                           
+                nwafersi=round(nwafers)               
                 disp(' current density is in gm/cm^3              ',rho)
                 perfect_density=rho*nwafersi/nwafers
-                disp(' for perfect Wafer density, alter it to ',perfect_density)   
-                
+                disp(' for perfect Wafer density, alter it to ',perfect_density)                   
                 ac.assembly.chambers(i).pyro.shape.geometry="wafer"       
                 ac.assembly.chambers(i).pyro.shape.outer_radius=strcat([string(od/2),' mm'])
                 ac.assembly.chambers(i).pyro.shape.inner_radius=strcat([string(id/2),' mm'])        
-                ac.assembly.chambers(i).pyro.shape.height=nab(text,'starID_waferID_triBL_surfAREA',i,'mm')     
-                ac.assembly.chambers(i).pyro.amount=n;
+                ac.assembly.chambers(i).pyro.shape.height=nabstr(text,47,i,'mm')     
+                ac.assembly.chambers(i).pyro.amount=nwafersi;
                 ac.assembly.chambers(i).pyro.density=(msprintf("%.6f",perfect_density)+' g/cm^3')
-
             case(7) then // grain               
-                id=GetNumFromDeck(text,'tabOD_waferOD_starMD_triRAD',i)     
-                od=GetNumFromDeck(text,'sphereOD_starNFIN',i)     
-                fd=GetNumFromDeck(text,'starID_waferID_triBL_surfAREA',i)     
-                finthick=GetNumFromDeck(text,'tabDOME_waferNBREAK_starFINTHICK',i)
+                id=nabval(text,45,i)     
+                od=nabval(text,47,i)     
+                fd=nabval(text,46,i)     
+                finthick=nabval(text,48,i)
                 height=10.0  // just a place holder since the current deck files don't contain this information
-                nfins=GetNumFromDeck(text,'tabTHICK_triTHICK_waferTHICK_starOD',i)
-    
+                nfins=nabval(text,49,i)    
                 theta=pi/nfins
-                A1=.5*theta*((od/2)^2-(id/2)^2)
-                
-    //            beta=asin((finthick/2)/(fd/2))
+                A1=.5*theta*((od/2)^2-(id/2)^2)                
+                //            beta=asin((finthick/2)/(fd/2))
                 yc=sqrt((od/2)^2 - (finthick/2)^2)
                 A2=(fd/2-yc)*finthick/2
                 gamma=asin((finthick/2)/(od/2))
@@ -126,34 +128,26 @@ function [ac]=GetPyroDetails1(ac, text, ncham)
                 area=2*nfins*(A1+A2-A3)/100.  // convert to sq cm.
                 vol=pyromass/rho;
                 height=10*vol/area; // compute a new length leaving density/mass alone
-               //vol=area*height/10. // convert to cu cm
-               // disp('the grain end area is, in sq. cm. ' ,area)
-               // disp('the grain vol is, in cc''s ',vol)
-               disp('the grain lengtch was computed as ',height*1000)
-                
-    /*            ngrains=pyromass/(vol*rho) // scaled
+                disp('the grain length was computed as ',height*1000)
+
+                /*            ngrains=pyromass/(vol*rho) // scaled
                 mprintf('ngrains as real is %.6f \n',ngrains)
                 ngrainsi=round(ngrains)
                 mprintf('rounded, it is     %.0f \n',ngrainsi)  */
+
                 ngrainsi=1 ; // force to 1 grain temporarily
-             //   mprintf(' the current density is %.6f \n',rho)
-             //   perfect_density=rho*ngrainsi/ngrains
-             //   mprintf(' for perfect Grain density, it was altered to %.6f \n', perfect_density)
-                
-                
-    
+
                 ac.assembly.chambers(i).pyro.shape.geometry="grain"
-                ac.assembly.chambers(i).pyro.shape.inner_diameter=nab(text,'tabOD_waferOD_starMD_triRAD',i,'mm')     
-                ac.assembly.chambers(i).pyro.shape.outer_diameter=nab(text,'sphereOD_starNFIN',i,'mm')     
-                ac.assembly.chambers(i).pyro.shape.fin_diameter=nab(text,'starID_waferID_triBL_surfAREA',i,'mm')     
-                ac.assembly.chambers(i).pyro.shape.fin_thickness=nab(text,'tabDOME_waferNBREAK_starFINTHICK',i,'mm')        
-                ac.assembly.chambers(i).pyro.shape.cylinder_height="10 mm" // just a placeholder since the deck files don't havethis information
+                ac.assembly.chambers(i).pyro.shape.inner_diameter=nabstr(text,45,i,'mm')     
+                ac.assembly.chambers(i).pyro.shape.outer_diameter=nabstr(text,47,i,'mm')     
+                ac.assembly.chambers(i).pyro.shape.fin_diameter=nabstr(text,46,i,'mm')     
+                ac.assembly.chambers(i).pyro.shape.fin_thickness=nabstr(text,48,i,'mm')        
                 
                 lenstr=msprintf('%.5f mm',height)
                 ac.assembly.chambers(i).pyro.shape.cylinder_height=lenstr;
-                ac.assembly.chambers(i).pyro.shape.num_fins=strtod(nab(text,'tabTHICK_triTHICK_waferTHICK_starOD',i,''))
+                ac.assembly.chambers(i).pyro.shape.num_fins=nabval(text,49,i)
                 ac.assembly.chambers(i).pyro.amount=ngrainsi;
-         //     ac.assembly.chambers(i).pyro.density=(msprintf("%.6f",perfect_density)+' g/cm^3')
+                // ac.assembly.chambers(i).pyro.density=(msprintf("%.6f",perfect_density)+' g/cm^3')
             end
         end
     end
@@ -164,12 +158,10 @@ function [ac]=GetPyroDetails1(ac, text, ncham)
         try
             if ac.assembly.chambers(i).pyro == []
                ac.assembly.chambers(i).pyro=null()  
-            end
-            
+            end            
             if ac.assembly.chambers(i).filter == []
                ac.assembly.chambers(i).filter = null()
-            end
-            
+            end            
         catch
             mprintf(' %s\n',' no pyros' )
         end
@@ -177,37 +169,39 @@ function [ac]=GetPyroDetails1(ac, text, ncham)
 endfunction
 
 
-function [ac]=GetOrificeDetails1(ac, text, ncham)
+function [ac]=GetOrificeDetails1(ac, text)
+    ncham=nabval(text,2,1);
     orificecount=0;
+    num_orifice_row=30
+    diameter_row=27
+    cd_row=33
+    connection_row=12
+    vf_row=6
+    burst_row=36
+    
     for i=1: ncham
-        norificegroups=strtod(nab(text,'num_orifice_sizes',i,""))
-//        disp('chamber and group number',[i,norificegroups])
+        norificegroups=3
         for j=1:norificegroups
-            orificecount=orificecount+1 ; // incrememnt which orifice to write to JSON
-            norifices=strtod(nab(text,strcat(["num_orifice",string(j)]),i,'mm'));
-            ord=strtod(nab(text,strcat(["diameter",string(j)]),i,'mm'));
-//            disp('ord is ', ord)
-            if(isnan(ord)) then
-//                disp('in the breakloop')
-                break
-            end
-
+            norifices=nabval(text,num_orifice_row+(j-1),i);
+            ord=nabval(text,diameter_row+(j-1),i);
             deq=sqrt(norifices)*ord
-            ac.assembly.orifices(1,orificecount).diameter=strcat([string(deq),' mm']) ; // equivalent diameter assuming 1 orifice for the group
-            ac.assembly.orifices(1,orificecount).open=%f
-            ac.assembly.orifices(1,orificecount).discharge_coefficient=strtod(nab(text,strcat(["cd_value",string(j)]),i,''));
-            ac.assembly.orifices(1,orificecount).from=i
-            ac.assembly.orifices(1,orificecount).to=strtod(nab(text,strcat(["chamber_connection"]),i,''));
-            ac.assembly.orifices(1,orificecount).viscous_flow_factor=strtod(nab(text,"visc_flow",1,''));
 
-            ocodestr='orifice_type_code'+string(j)
-            ocode=strtod(nab(text,ocodestr,i,'thistringdoesnotmatter'))
-            select ocode
-            case 2 then
-                ac.assembly.orifices(1,orificecount).opens_at=nab(text,strcat(["burst_pressure",string(j)]),i,'MPa')
-            case 4 then
-                ac.assembly.orifices(1,orificecount).opens_at=nab(text,strcat(["burst_time",string(j)]),i,'s')
-            end
+            if(deq <> 0) then // there is an orifice here...
+                orificecount=orificecount+1                
+                ac.assembly.orifices(1,orificecount).diameter=strcat([string(deq),' mm']) ; // equivalent diameter assuming 1 orifice for the group
+                ac.assembly.orifices(1,orificecount).open=%f
+                ac.assembly.orifices(1,orificecount).discharge_coefficient=nabval(text,cd_row+(j-1),i);
+                ac.assembly.orifices(1,orificecount).from=i
+                ac.assembly.orifices(1,orificecount).to=nabval(text,connection_row,i);
+                ac.assembly.orifices(1,orificecount).viscous_flow_factor=nabval(text,vf_row,1);
+
+                open_pressure=nabval(text,burst_row+(j-1),i)
+                if(open_pressure  <> 1000) then
+                    ac.assembly.orifices(1,orificecount).opens_at=string(open_pressure)+'MPa'
+                else
+                    ac.assembly.orifices(1,orificecount).opens_at=nabstr(text,burst_row+(j-1)+3,i,'s')
+                end
+            end            
         end
     end
     // things that can be done outside of the loop through chambers
@@ -234,7 +228,7 @@ function [ac]=GetOrificeDetails1(ac, text, ncham)
     execstr(strcat(["ac.assembly.orifices = ",str,")"]))
 endfunction
 
-function [ac]=GetHeatTransferDetails(ac, text, ncham)  
+function [ac]=GetHeatTransferDetails1(ac, text, ncham)  
     //  from AIPP:  REAL(DP) :: rhosteel = 7833.d0, cpsteel=510.d0, ksteel=45.0d0
     default_density_string="7833.0 kg/m^3"
     default_conductivity_string="45.0 W/(m K)"
