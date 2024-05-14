@@ -53,17 +53,13 @@ function [ac]=GetPyroDetails1(ac, text)
     n_row=52
     sigmap_row=53
     shape_row=44
-
     ncham=nabval(text,2,1)
-
     for i=1:ncham
         temp=nabstr(text,pyro_file_row,i,"")
         disp('temp is ',temp)
         name=(strsplit(temp,'.'))(1) // omit the .pyro file extension
         pyromass=nabval(text,pyro_mass_row,i);
         rho=nabval(text,pyro_density_row,i)
-//        disp('first pyromass is ',pyromass)
-
         if pyromass ~= 0 then
             ac.assembly.chambers(i).pyro.formulation=strsubst(name,"-","_")
             // get the actual number of the density 
@@ -197,9 +193,9 @@ function [ac]=GetOrificeDetails1(ac, text)
 
                 open_pressure=nabval(text,burst_row+(j-1),i)
                 if(open_pressure  <> 1000) then
-                    ac.assembly.orifices(1,orificecount).opens_at=string(open_pressure)+'MPa'
+                    ac.assembly.orifices(1,orificecount).opens_at=nabstrf(text,burst_row+(j-1),i,'MPa');
                 else
-                    ac.assembly.orifices(1,orificecount).opens_at=nabstr(text,burst_row+(j-1)+3,i,'s')
+                    ac.assembly.orifices(1,orificecount).opens_at=nabstrf(text,burst_row+(j-1)+3,i,'s')
                 end
             end            
         end
@@ -230,33 +226,44 @@ endfunction
 
 function [ac]=GetHeatTransferDetails1(ac, text, ncham)  
     //  from AIPP:  REAL(DP) :: rhosteel = 7833.d0, cpsteel=510.d0, ksteel=45.0d0
+    ncham=nabval(text,2,1);
     default_density_string="7833.0 kg/m^3"
     default_conductivity_string="45.0 W/(m K)"
     default_specific_heat_string="510.0 J/(kg K)"
-    default_heat_transfer_coefficient = "10 W/(m^2 K)"
+    default_heat_transfer_coefficient = "10.0 W/(m^2 K)"
+    wall_thickness_row=57
+    wall_hl_row=56
+    conditioning_temp_row=13
+    
+    
+    
 
     for i=1:ncham
-        ac.assembly.walls(i).area=ComputeAreaFromVolume(ac.assembly.chambers(i).volume)
-        ac.assembly.walls(i).thickness=nab(text,'wall_thickness_mass', i, 'mm')
+        ac.assembly.walls(i).area=ComputeAreaFromVolume1(ac.assembly.chambers(i).volume,i==ncham)
+        ac.assembly.walls(i).thickness=nabstr(text,wall_thickness_row, i, 'mm')
         ac.assembly.walls(i).density=default_density_string
         ac.assembly.walls(i).thermal_conductivity=default_conductivity_string
         ac.assembly.walls(i).specific_heat=default_specific_heat_string
-        ac.assembly.walls(i).temperature=nab(text,'conditioning_temperature',1,'K')
-        ac.assembly.walls(i).right_connection.type='CONSTANT_HEAT'
-        ac.assembly.walls(i).right_connection.heat='0 W'
-        ac.assembly.walls(i).left_connection.type='CONSTANT_COEFFICIENT'
-        ac.assembly.walls(i).left_connection.chamber_index=i//string(i)
-        ac.assembly.walls(i).left_connection.heat_transfer_coefficient=...
-        nab(text, 'wall_heatloss_factor', i, 'W/(m^2 K)');
-        
-        first = part( ac.assembly.walls(i).left_connection.heat_transfer_coefficient,1)
-
-        if first == "+" | first =="-"
-            ac.assembly.walls(i).left_connection.heat_transfer_coefficient ...
-            = part(ac.assembly.walls(i).left_connection.heat_transfer_coefficient,2:$)
+        ac.assembly.walls(i).temperature=nabstr(text,conditioning_temp_row,1,'K')
+        hl=nabval(text,wall_hl_row,i)
+        if(hl>0) then
+            ac.assembly.walls(i).left_connection.type='VARIABLE_COEFFICIENT'
+            ac.assembly.walls(i).left_connection.chamber_index=i//string(i)
+            ac.assembly.walls(i).left_connection.scale_factor=nabval(text,wall_hl_row, i);
+        else
+            ac.assembly.walls(i).left_connection.type='CONSTANT_COEFFICIENT'
+            ac.assembly.walls(i).left_connection.chamber_index=i//string(i)
+            ac.assembly.walls(i).left_connection.heat_transfer_coefficient=...
+            strcat(string(hl), ' W/(m^2 K)');
         end
+        ac.assembly.walls(i).right_connection.type='CONSTANT_HEAT'
+        ac.assembly.walls(i).right_connection.heat='0.0 W'
         
-        ac.assembly.walls(ncham).temperature='294.15 K' // override the conditioning temp for the tank wall
+        //first = part( ac.assembly.walls(i).left_connection.heat_transfer_coefficient,1)
+        //if first == "+" | first =="-"
+        //    ac.assembly.walls(i).left_connection.heat_transfer_coefficient ...
+        //    = part(ac.assembly.walls(i).left_connection.heat_transfer_coefficient,2:$)
+        //end
         
         if i ==1 
             str = "ac.assembly.walls = list(ac.assembly.walls(1)"
@@ -270,50 +277,53 @@ function [ac]=GetHeatTransferDetails1(ac, text, ncham)
         else
             str = str + ")"
         end
-    end
-    
-    execstr(str)
-        
+    end    
+    execstr(str)        
 endfunction
 
 function [ac]=GetFilterDetails1(ac, text, ncham)  
     //  from AIPP:  REAL(DP) :: rhosteel = 7833.d0, cpsteel=510.d0, ksteel=45.0d0
+    ncham=nabval(text,2,1);
     default_density_string="7833.0 kg/m^3"
     default_specific_heat_string="510.0 J/(kg K)"
+    filter_mass_row=59
+    filter_amt_row=60
+    kntu_row=8
+    filter_count=0
+    kntu=nabval(text,kntu_row,1)
 
     for i=1:ncham-1 // no filters in tank
-
-
-        FilterCode=nab(text,'heat_loss_method',1,'') // 1st string
-        FC=stripblanks(FilterCode)
-        if(FC =='percentage') then
-            ac.assembly.chambers(i).filter.density=default_density_string
-            ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
-            ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
-            ac.assembly.chambers(i).filter.method='PERCENTAGE'
-            ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'pack_heatloss_percent_removed',i,''))/100.
-            ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
-        else
-            ac.assembly.chambers(i).filter.density=default_density_string
-            ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
-            ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
-            ac.assembly.chambers(i).filter.method='KNTU' // will become KNTU once Archaeologic fixes it.
-            ac.assembly.chambers(i).filter.coefficient=strtod(nab(text,'kntu_value',1,''))
-            ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
-        end
+        filter_mass=nabval(text,filter_mass_row,i) // 1st string
+        filter_coefficient=nabval(text,filter_amt_row, i)
+        //FC=stripblanks(FilterCode)
+        if(filter_mass <> 0.01) then
+            filter_count=filter_count+1
+        
+            if(filter_coefficient <0) then
+                ac.assembly.chambers(i).filter.density=default_density_string
+                ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
+                ac.assembly.chambers(i).filter.mass=nabstr(text,filter_mass_row,i,'g')
+                ac.assembly.chambers(i).filter.method='PERCENTAGE'
+                ac.assembly.chambers(i).filter.coefficient=abs(filter_coefficient)*100.
+                ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
+            else
+                ac.assembly.chambers(i).filter.density=default_density_string
+                ac.assembly.chambers(i).filter.specific_heat=default_specific_heat_string
+                ac.assembly.chambers(i).filter.mass=nab(text,'filter_weight',i,'g')
+                ac.assembly.chambers(i).filter.method='KNTU' // will become KNTU once Archaeologic fixes it.
+                ac.assembly.chambers(i).filter.coefficient=nabval(text,kntu_row,1)
+                ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
+            end
+        end        
     end
 endfunction
 
-function [area]=ComputeAreaFromVolume1(vol)
+function [area]=ComputeAreaFromVolume1(vol,istank)
     volume=strtod(tokens(vol)(1));
-    unit=tokens(vol)(2)
-    select unit
-    case("mm^3") then
-        volume=volume/1e9
-    case("cm^3") then
-        volume=volume/1e6
-    case("L") then 
+    if(istank) then
         volume=volume/1e3
+    else
+        volume=volume/1e9
     end
     pi=3.141592653
     // below, artificially scaling by 2.5 like AIPP-2.3.5 does
