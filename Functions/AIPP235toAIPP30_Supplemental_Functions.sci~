@@ -1,6 +1,7 @@
 function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
     for i=1:1:max(size(vars))
         rows = grep(json_txt,vars(i))
+        disp('vars i ', vars(i))
         if rows ~= []
             for j=1:1:max(size(rows))
                 colsindex = strindex(json_txt(rows(j)),":")
@@ -25,6 +26,21 @@ function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
         end 
     end
     doubled_ints = json_txt
+endfunction
+
+function FixedJSON = FixJSON(InputJSON)
+    for i =1:1:max(size(InputJSON))
+        FixedJSON(i) = strsubst(InputJSON(i),"\/","/")
+    end    
+    
+    orifice_locs = grep(FixedJSON, "orifices")
+    
+    for i = 1:1:max(size(orifice_locs)) - 1
+        value = strsplit(FixedJSON(orifice_locs(i)))($)
+        value = stripblanks(value)
+        value = part(value)
+    end
+    
 endfunction
 
 function FixedBraces = FixSquareBracesforPyro(JSONfromStructure)
