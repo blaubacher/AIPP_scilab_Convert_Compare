@@ -317,22 +317,17 @@ function [ac]=GetFilterDetails1(ac, text, ncham)
                 ac.assembly.chambers(i).filter.orifices='['+string(i)+']'
             end
         end
-    end
-
-    for i=1:ncham   
-         filter_mass=nabval(text,filter_mass_row,i) // 1st string 
+        
         if (filter_mass == 0.01) then
             ac.assembly.chambers(i).filter=null()     
         end
-    end
-    
         
         //if(filter_mass == 0.01) then
         //    ac.assembly.chambers(i).filter=null()
         //end
 //    
 
-
+end
     //If there is no pyro in a chamber the structure defaults to pyro = []
     //This loop removes and empty pyro children for each chamber so no 
     //erroneous output is written to the JSON file

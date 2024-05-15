@@ -1,6 +1,7 @@
 function doubled_ints = ConvertIntsToDoublesJSON(json_txt, vars)
     for i=1:1:max(size(vars))
         rows = grep(json_txt,vars(i))
+        disp('vars i ', vars(i))
         if rows ~= []
             for j=1:1:max(size(rows))
                 colsindex = strindex(json_txt(rows(j)),":")
